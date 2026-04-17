@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golf Course Location Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f8f0;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* Top bar */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .pill {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 14px;
+    border-radius: 99px;
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #666;
+  }
+
+  .pill span { color: #111; font-weight: 600; }
+
+  /* Progress bar */
+  .prog-wrap {
+    height: 6px;
+    background: #e0e8d8;
+    border-radius: 3px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    background: #639922;
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* Course card */
+  .card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem 1.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .course-flag {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #EAF3DE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 20px;
+  }
+
+  .ask {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .course-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+
+  .course-hint {
+    font-size: 13px;
+    color: #888;
+  }
+
+  /* Answer grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .opt {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 14px 12px;
+    font-size: 14px;
+    color: #111;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    transition: background 0.12s, border-color 0.12s;
+    font-family: Arial, sans-serif;
+  }
+
+  .opt:hover:not(:disabled) {
+    background: #f4f8f0;
+    border-color: #999;
+  }
+
+  .opt:disabled { cursor: default; }
+
+  .opt.correct {
+    background: #EAF3DE;
+    border-color: #3B6D11;
+    color: #27500A;
+    font-weight: 600;
+  }
+
+  .opt.wrong {
+    background: #FCEBEB;
+    border-color: #A32D2D;
+    color: #791F1F;
+  }
+
+  .opt.reveal {
+    background: #EAF3DE;
+    border-color: #3B6D11;
+    color: #27500A;
+  }
+
+  /* Feedback row */
+  .fb-row {
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .fb-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .fb-ok .fb-dot { background: #EAF3DE; color: #27500A; }
+  .fb-no .fb-dot { background: #FCEBEB; color: #791F1F; }
+  .fb-ok .fb-msg { color: #27500A; }
+  .fb-no .fb-msg { color: #791F1F; }
+
+  /* Next button */
+  .next-btn {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 11px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #111;
+    font-family: Arial, sans-serif;
+    transition: background 0.12s;
+  }
+
+  .next-btn:hover { background: #f4f8f0; }
+
+  /* End screen */
+  .end {
+    text-align: center;
+    padding: 1rem 0.5rem 0.5rem;
+  }
+
+  .end-icon { font-size: 48px; margin-bottom: 0.75rem; }
+
+  .end-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+  }
+
+  .end-sub {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 1.25rem;
+  }
+
+  .end-stat {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f4f8f0;
+    border-radius: 12px;
+    padding: 1rem 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .end-stat .big {
+    font-size: 36px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .end-stat .sm {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* Scorecard dots */
+  .streak-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+  }
+
+  .dot-sq {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+
+  .dot-sq.hit { background: #639922; }
+  .dot-sq.miss { background: #E24B4A; }
+
+  /* Restart button */
+  .again-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 10px 32px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #111;
+    font-family: Arial, sans-serif;
+    transition: background 0.12s;
+  }
+
+  .again-btn:hover { background: #f4f8f0; }
+  .home-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+
+    background-color: #d3d3d3;
+    color: black;
+    text-decoration: none;
+
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+
+    z-index: 1000; /* keeps it above other elements */
+    transition: background-color 0.2s ease;
+}
+
+.home-button:hover {
+    background-color: #bdbdbd;
+}
+</style>
+</head>
+<body>
+  <div>
+    <a href="../js/fromscratch.html" class="home-button">Go To Home Page</a>
+
+  </div>  
+
+<div class="shell">
+
+  <!-- GAME SCREEN -->
+  <div id="game">
+    <div class="top-bar">
+      <div class="pill">hole <span id="hole-num">1</span> / 10</div>
+      <div class="pill">score <span id="score-num">0</span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-fill" id="prog" style="width:0%"></div>
+    </div>
+    <div class="card">
+      <div class="course-flag" id="c-flag">⛳</div>
+      <p class="ask">where in the world is</p>
+      <p class="course-name" id="c-name"></p>
+      <p class="course-hint" id="c-hint"></p>
+    </div>
+    <div class="grid" id="opts"></div>
+    <div class="fb-row" id="fb"></div>
+    <button class="next-btn" id="nxt" style="display:none" onclick="advance()">Next hole →</button>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end" style="display:none">
+    <div class="end">
+      <div class="end-icon" id="e-icon"></div>
+      <div class="end-title" id="e-title"></div>
+      <div class="end-sub" id="e-sub"></div>
+      <div class="end-stat">
+        <span class="big" id="e-score"></span>
+        <span class="sm">correct out of 10</span>
+      </div>
+      <div class="streak-row" id="streak"></div>
+      <button class="again-btn" onclick="restart()">Play again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ALL = [
+    { name: "Pebble Beach Golf Links",   hint: "host of 6 US Opens",                    answer: "California, USA",          opts: ["California, USA", "Florida, USA", "Scotland, UK", "New South Wales, Australia"] },
+    { name: "Augusta National",           hint: "home of The Masters",                   answer: "Georgia, USA",             opts: ["Georgia, USA", "South Carolina, USA", "Virginia, USA", "North Carolina, USA"] },
+    { name: "St Andrews (Old Course)",    hint: "the home of golf",                      answer: "Fife, Scotland",           opts: ["Fife, Scotland", "County Down, Ireland", "East Sussex, England", "County Antrim, N. Ireland"] },
+    { name: "Royal Melbourne",            hint: "Australia's finest links",              answer: "Melbourne, Australia",     opts: ["Melbourne, Australia", "Sydney, Australia", "Cape Town, South Africa", "Auckland, New Zealand"] },
+    { name: "Shinnecock Hills",           hint: "one of the oldest US clubs",            answer: "New York, USA",            opts: ["New York, USA", "New Jersey, USA", "Connecticut, USA", "Massachusetts, USA"] },
+    { name: "Muirfield",                  hint: "Scottish championship links",           answer: "East Lothian, Scotland",   opts: ["East Lothian, Scotland", "Ayrshire, Scotland", "County Kildare, Ireland", "Kent, England"] },
+    { name: "TPC Sawgrass",               hint: "home of The Players Championship",      answer: "Florida, USA",             opts: ["Florida, USA", "Georgia, USA", "Texas, USA", "South Carolina, USA"] },
+    { name: "Royal County Down",          hint: "nestled beneath the Mourne Mountains",  answer: "County Down, N. Ireland",  opts: ["County Down, N. Ireland", "Kerry, Ireland", "Fife, Scotland", "Lancashire, England"] },
+    { name: "Valderrama",                 hint: "host of the 1997 Ryder Cup",            answer: "Andalusia, Spain",         opts: ["Andalusia, Spain", "Algarve, Portugal", "Catalonia, Spain", "Tuscany, Italy"] },
+    { name: "Bandon Dunes",               hint: "a golfer's pilgrimage destination",     answer: "Oregon, USA",              opts: ["Oregon, USA", "Maine, USA", "Washington, USA", "California, USA"] },
+    { name: "Carnoustie",                 hint: "nicknamed Car-nasty",                   answer: "Angus, Scotland",          opts: ["Angus, Scotland", "Fife, Scotland", "Ayrshire, Scotland", "East Lothian, Scotland"] },
+    { name: "Cape Kidnappers",            hint: "dramatic cliffs over Hawke's Bay",      answer: "Hawke's Bay, New Zealand", opts: ["Hawke's Bay, New Zealand", "Queenstown, New Zealand", "Melbourne, Australia", "Western Cape, S. Africa"] },
+    { name: "Pinehurst No. 2",            hint: "sandhill country of North Carolina",    answer: "North Carolina, USA",      opts: ["North Carolina, USA", "Georgia, USA", "Virginia, USA", "South Carolina, USA"] },
+    { name: "Royal Birkdale",             hint: "Lancashire dunes and willow scrub",     answer: "Lancashire, England",      opts: ["Lancashire, England", "Kent, England", "East Lothian, Scotland", "County Dublin, Ireland"] },
+    { name: "Whistling Straits",          hint: "Lake Michigan shoreline",               answer: "Wisconsin, USA",           opts: ["Wisconsin, USA", "Michigan, USA", "Ohio, USA", "Minnesota, USA"] },
+  ];
+
+  const FLAGS = {
+    "California, USA": "🌴", "Georgia, USA": "🍑", "Fife, Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "Melbourne, Australia": "🦘", "New York, USA": "🗽", "East Lothian, Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "Florida, USA": "🌞", "County Down, N. Ireland": "🍀", "Andalusia, Spain": "💃",
+    "Oregon, USA": "🌲", "Angus, Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Hawke's Bay, New Zealand": "🥝",
+    "North Carolina, USA": "🌲", "Lancashire, England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Wisconsin, USA": "🧀"
+  };
+
+  let pool = [], cur = 0, score = 0, results = [], answered = false;
+
+  function shuffle(a) { return a.slice().sort(() => Math.random() - 0.5); }
+
+  function start() {
+    pool = shuffle(ALL).slice(0, 10);
+    cur = 0; score = 0; results = []; answered = false;
+    loadQ();
+  }
+
+  function loadQ() {
+    answered = false;
+    const q = pool[cur];
+    document.getElementById('hole-num').textContent = cur + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('prog').style.width = `${(cur / 10) * 100}%`;
+    document.getElementById('c-flag').textContent = FLAGS[q.answer] || '⛳';
+    document.getElementById('c-name').textContent = q.name;
+    document.getElementById('c-hint').textContent = q.hint;
+    document.getElementById('fb').className = 'fb-row';
+    document.getElementById('fb').innerHTML = '';
+    document.getElementById('nxt').style.display = 'none';
+
+    const g = document.getElementById('opts');
+    g.innerHTML = '';
+    shuffle(q.opts).forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = o;
+      b.onclick = () => pick(o, q);
+      g.appendChild(b);
+    });
+  }
+
+  function pick(choice, q) {
+    if (answered) return;
+    answered = true;
+    const btns = document.querySelectorAll('.opt');
+    btns.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById('fb');
+    const correct = choice === q.answer;
+
+    if (correct) {
+      score++;
+      results.push(1);
+      fb.className = 'fb-row fb-ok';
+      fb.innerHTML = '<div class="fb-dot">✓</div><span class="fb-msg">Correct!</span>';
+    } else {
+      results.push(0);
+      fb.className = 'fb-row fb-no';
+      fb.innerHTML = `<div class="fb-dot">✕</div><span class="fb-msg">It's ${q.answer}</span>`;
+    }
+
+    btns.forEach(b => {
+      if (b.textContent === q.answer) b.classList.add('reveal');
+      if (b.textContent === choice && !correct) b.classList.add('wrong');
+    });
+
+    document.getElementById('score-num').textContent = score;
+
+    if (cur < 9) {
+      document.getElementById('nxt').style.display = 'block';
+    } else {
+      setTimeout(showEnd, 1100);
+    }
+  }
+
+  function advance() { cur++; loadQ(); }
+
+  function showEnd() {
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('end').style.display = 'block';
+
+    const p = score / 10;
+    const icons  = ['😬', '🤔', '⛳', '🏌️', '🏆'];
+    const titles = ['Back to the range!', 'Getting there!', 'Solid round!', 'Great course knowledge!', 'Hole in one!'];
+    const subs   = [
+      'Not quite the globe-trotter yet — keep exploring!',
+      'A few more to brush up on.',
+      'You know your courses pretty well.',
+      'You could caddie around the world!',
+      'Perfect score — you\'re a golf geography legend!'
+    ];
+    const tier = p === 1 ? 4 : p >= 0.8 ? 3 : p >= 0.6 ? 2 : p >= 0.4 ? 1 : 0;
+
+    document.getElementById('e-icon').textContent = icons[tier];
+    document.getElementById('e-title').textContent = titles[tier];
+    document.getElementById('e-sub').textContent = subs[tier];
+    document.getElementById('e-score').textContent = score;
+
+    const sr = document.getElementById('streak');
+    sr.innerHTML = '';
+    results.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'dot-sq ' + (r ? 'hit' : 'miss');
+      sr.appendChild(d);
+    });
+  }
+
+  function restart() {
+    document.getElementById('end').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    start();
+  }
+
+  start();
+</script>
+
+</body>
+</html>

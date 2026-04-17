@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Golf Course Quiz Game</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #e6f5e6;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+img {
+    width: 500px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.choices button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.choices button:hover {
+    background-color: #45a049;
+}
+
+#score {
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+/* POPUP BUBBLE */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background-color: white;
+    padding: 20px 40px;
+    border-radius: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    white-space: pre-line;
+}
+
+.popup.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+</style>
+</head>
+
+<body>
+<a href="../js/fromscratch.html">Go To Home Page</a>
+<h1>Golf Course Guessing Game ⛳</h1>
+
+<img id="courseImage" src="" alt="Golf Course">
+
+<div class="choices">
+    <button onclick="checkAnswer(0)"></button>
+    <button onclick="checkAnswer(1)"></button>
+    <button onclick="checkAnswer(2)"></button>
+    <button onclick="checkAnswer(3)"></button>
+</div>
+
+<div id="score">Score: 0</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup"></div>
+
+<script>
+let score = 0;
+let currentQuestion = 0;
+
+const questions = [
+    {
+        image: "https://images.unsplash.com/photo-1500930287596-c1ecaa373bb2?auto=format&fit=crop&w=1200&q=80",
+        choices: ["Pebble Beach", "Augusta National", "St Andrews", "Torrey Pines"],
+        answer: 0
+    },
+    {
+        image: "https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=1200&q=80",
+        choices: ["Torrey Pines", "Augusta National", "Bethpage Black", "Pinehurst"],
+        answer: 1
+    },
+    {
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+        choices: ["Pebble Beach", "St Andrews", "Bandon Dunes", "Kiawah Island"],
+        answer: 0
+    },
+    {
+        image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80",
+        choices: ["Torrey Pines", "St Andrews", "Pine Valley", "Oakmont"],
+        answer: 1
+    }
+];
+
+function loadQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById("courseImage").src = q.image;
+
+    const buttons = document.querySelectorAll(".choices button");
+    buttons.forEach((btn, index) => {
+        btn.innerText = q.choices[index];
+    });
+}
+
+function checkAnswer(choice) {
+    const q = questions[currentQuestion];
+    const buttons = document.querySelectorAll(".choices button");
+    const popup = document.getElementById("popup");
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (choice === q.answer) {
+        score++;
+        popup.innerText = "✅ Correct!";
+    } else {
+        popup.innerText = "❌ Wrong!\nCorrect answer: " + q.choices[q.answer];
+    }
+
+    document.getElementById("score").innerText = "Score: " + score;
+
+    popup.classList.add("show");
+
+    if (score >= 10) {
+        setTimeout(() => {
+            popup.innerText = "🎉 You Win!";
+        }, 1000);
+        return;
+    }
+
+    setTimeout(() => {
+        popup.classList.remove("show");
+
+        buttons.forEach(btn => btn.disabled = false);
+
+        currentQuestion = (currentQuestion + 1) % questions.length;
+        loadQuestion();
+    }, 2000);
+}
+
+// Start game
+loadQuestion();
+</script>
+
+</body>
+</html>
